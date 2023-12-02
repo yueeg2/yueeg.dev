@@ -1,0 +1,443 @@
+---
+title: 'Nextjs'
+date: '2023-11-05'
+lastmod: '2023-11-05'
+tags: ['next-js', 'fundamental', 'study']
+draft: false
+summary: '在過去寫 React 時，發現有各種不同的寫法/方法來開發，要研究出一套固定寫法，著實困難。但想要有一個框架感，在開發時能夠主導我們如何構建元件，以此希望能降低開發時間，並且優化性能。'
+images: ['/static/images/twitter-card.png']
+---
+
+<TOCInline toc={props.toc} exclude="Introduction" />
+
+
+## 緣由
+在過去寫 React 時，發現有各種不同的寫法/方法來開發，要研究出一套固定寫法，著實困難。但想要有一個框架感，在開發時能夠主導我們如何構建元件，以此希望能降低開發時間，並且優化性能。
+
+
+### *React 的 性能有什麼問題？
+>（待續）[name=Yue][time=Tue, Jul 25, 2023 9:52 PM] 
+
+
+## Nextjs 的環境
+Next.js 在開發階段(dev)與正式階段(prod)的應用程式分別提供了一些功能：
+
+### 開發階段(dev)
+Next.js 做了在 **構建應用程式時的體驗優化**：
+[TypeScript](https://nextjs.tw/docs/basic-features/typescript) 和 [ESLint](https://nextjs.tw/docs/basic-features/eslint) 整合、快速重新整理
+
+
+> #### *什麼是 ESLint ？
+> 是一個 Javascript Linter，他能確保你的程式碼品質。
+> Linter 會幫你做靜態語法分析，在你執行之前抓出可能的錯誤，例：
+> + 沒宣告變數就拿來用、少了括號等等常見的語法錯誤
+> + 不使用全域變數、建議使用 === 而非 ==、不使用 eval …
+> + 有些變數宣告了卻沒有使用、import 了沒有使用的模組、空的 class constructor …
+> + 要不要加分號、使用單引號或雙引號、縮排使用 space 或 tab 等等
+
+
+#### next-env.d.ts (Typescript 體驗優化)
++ TypeScript declaration file for Next.js
++ 確保 Next.js types 有被 TypeScript 編譯器接管
++ 存在在根目錄下
++ 有可能在任何時候被改變
++ 千萬不可移除或編輯它
++ 這個檔案不應該被 commit 
++ 需要被版本控制忽略(例如：在你的 gitignore 檔案)。
+
+### 正式階段(prod)
+Next.js 做了 **程式碼轉換**。程式碼轉換包含執行編譯、打包、最小化與程式碼拆分等過程。
+> Next.js 有個使用 Rust（一種低程度語言）與 SWC（一個可用於編譯、最小化與打包的平台）執行編譯的編譯器。
+
+
+## Nextjs 的架構
+### 根目錄資料夾
++ app (Router)
++ pages (Router)
++ public
++ src
+
+```
+app: 裝 App Router
+pages: 裝 Pages Router
+public: 放靜態 assets
+src: 不一定要放，可選的應用程式來源資料夾
+```
+
+### App Router files (.js .ts .jsx .tsx)
+[source](https://nextjs.org/docs/getting-started/project-structure#app-routing-conventions)
+
++ layout 
+    + 最頂層的 layout 稱作 Root Layout。
+    + Root Layout 必須有 html 和 body。
+    + Any route segment can optionally define its own Layout. These layouts will be shared across all pages in that segment.
+    +  當重新導向時, layouts 會**保留狀態**, **保持是可互動的**, 並且 **不會重新渲染**.
++ page
++ template (Re-rendered layout)
++ default (Parallel route fallback page)
++ route (server-side API endpoints)(.ts)
++ loading
++ not-found
++ error
++ global-error
+
+
+![](https://hackmd.io/_uploads/SJP_xva92.png)
+![](https://hackmd.io/_uploads/ByeYxPTqn.png)
+![](https://hackmd.io/_uploads/HyaRewTq3.png)
+
+[sauce － juejin](https://juejin.cn/post/7232227831114465336)
+
+### Pages Router files (.js .ts .jsx .tsx)
+[sauce － nextjs](https://nextjs.org/docs/getting-started/project-structure#pages-routing-conventions)
+:::info
+
+### Nested & Dynamic Routes
+Nested
++ name
++ name/name
+
+Dynamic
++ [name]
++ [...name]	(Catch-all segments)
++ [[...name]]	(Optional catch-all segments)
+
+### *用哪個 Router？ 都用？
++ 可以一起使用
++ app Router 是 13 版之後新增的
++ app 中的 Components 也是 React Server Components
+
+[What is Server and Client Components??](https://nextjs.org/docs/getting-started/react-essentials)
+#### File-based Routing
+
+File-based routing 的意思是每個檔案代表一個 route，而檔案名稱 (file name) 會變成 route 的 path name (路徑名稱)
+
+#### Client-side Routing Capable
+
+換頁的時候瀏覽器不用重新 reload ，提高體驗效果，Next.js 提供兩種方法：
+
++ `<Link>` (next/link)
++ useRouter (next/router)
+
+**`<Link>`** － prefetch
+當使用者畫面上有顯示 `<Link />` components， Next.js 會把所有採用 SSG / ISR 的頁面先做 prefetch (事先抓取) 這些頁面的檔案與資料，所以當使用者點下其中一個連結，瀏覽器可以馬上顯示新的畫面不需要等待，提升使用者換頁的體驗。
+
+**useRouter**
+The useRouter hook should be imported from `next/navigation` and not `next/router` when using the App Router.
+
+[sauce － ithome](https://ithelp.ithome.com.tw/m/articles/10268611)
+> （待續）[name=Yue][time=Tue, Jul 25, 2023 10:02 PM]
+:::
+
+## Rendering
+
+- Next.js 在伺服器上進一步優化靜態和動態渲染。在 Edge 和 Node.js 運行時上進行串流傳輸。
+
+Rendering Environments
+
+- There are two environments where web applications can be rendered:
+有兩種環境讓 web 可被渲染： client 和 server
+
+    The client refers to the browser on a user's device that sends a request to a server for your application code. It then turns the response from the server into a user interface.
+    
+    客戶端，像是瀏覽器，發送request給server請求然後取得回傳再渲染為介面
+
+    The server refers to the computer in a data center that stores your application code, receives requests from a client, and sends back an appropriate response.
+    
+    伺服器端指的是存放程式碼的電腦，接收來自客戶端的請求再送回適當的回應
+
+Nextjs 可以讓開發者用同種語言寫兩端的程式碼。然而每個環境有不同的功能和限制。所以在伺服器和客戶端編寫的程式碼並不會總是相同。的確有些操作（例如資料擷取或管理使用者狀態）比另一種環境更適合一種環境。
+
+### Foundation: Request-Response Lifecycle
+Start->新增一個使用者行為->客戶端送 HTTP 請求給伺服器，裡面包含所需的資訊、方法、其他資料等等->伺服器處理接到的請求並給予適當的回應。這個處理包括需許多步驟像是 routing, fetching data, 等等->處理好後伺服器會發送HTTP 回應回去給客戶端。這個回應包含狀態碼與客戶端請求所附帶的資源->客戶端會解析回傳的資源去渲染使用者畫面->當畫面渲染結束，使用者可以繼續新增新的使用者行為->Start
+
+建立混合 Web 應用程式的一個主要部分是決定如何在 Request-Response Lifecycle 中拆分工作，以及將網路邊界(Network Boundary)放置在何處。
+
+### Foundation: Network Boundary
+就是客戶端與伺服器端與資料中心的邊界
+
+在屏幕後方，工作被分為兩part：客戶模組圖像與伺服器模組圖像。客戶模組圖像就是包含了所有在客戶端渲染完成的元件。伺服器端模組圖像就是所有在伺服器端渲染完成的元件。
+
+模組圖像就是視覺表現與在程式檔案之中的依賴關係啦。
+
+可以使用React 的 "use client" 關鍵字去區分邊界。也有 "use server" 關鍵字可以告訴 React 在伺服器端做事。
+
+#### 伺服器和客戶端組合模式 as Hybrid Applications 
+該模型鼓勵開發人員需要考慮應用程式的哪些部分應該在伺服器或用戶端上呈現、考慮他們想要在伺服器上執行什麼，然後再將結果發送到客戶端並使應用程式互動。
+
+若你需要 Fetch data、直接取得 backend resources、保護 server上的敏感資料像是 access token, API keys 等等，還有像是減少客戶端的 JS code loading，你需要使用伺服器端元件。
+
+若你需要新增使用者互動監聽器，使用React 生命週期作用(useState(), useReducer(), useEffect(), etc)，使用 browser-only APls，使用 React hooks等等，就用客戶端元件。
+
+在客戶端渲染之前，有些工作可以在伺服器上執行，像是 fetching data, or 存取資料庫或後端服務。
+
+#### 在使用伺服器元件時的一些常見的模式
+
+組件之間需要共享數據： 在伺服器上取得資料時，可能存在需要跨不同元件共用資料的情況。 例如，您可能有一個依賴相同資料的佈局和頁面。 而不是使用 React Context 或將數據作為 props 傳遞，這情況下可以使用 fetch 或 React 的快取功能在需要它的組件中獲取相同的數據，而不必擔心對相同數據進行重複請求。 這是因為 React 擴展了 fetch 來自動記憶資料請求，並且當 fetch 不可用時可以使用快取功能。（Learn more about memoization in React.）
+
+將限定伺服器程式碼保護在客戶端環境之外：因為 JavaScript 是可以在伺服器和客戶端元件模組之間共用的，因此有可能原本只打算在伺服器上執行的程式碼會偷偷潛入客戶端。
+
+#### Server Components
+伺服器元件可以寫在伺服器上渲染和在伺服器上可選地快取的ＵＩ。
+框架中，渲染的工作被路由所分割以達到串流渲染（streaming rendering）和部分渲染（partial rendering）
+
+伺服器渲染策略有三種：
+
+* Static Rendering
+* Dynamic Rendering
+* Streaming
+
+
+靜態渲染
+
+使用靜態渲染，路由在建置時(build time)渲染，或在資料重新驗證後（data revalidation）在背景渲染。 渲染結果會被緩存並可以推送到內容分發網路 (CDN) 。 此策略可以在使用者和伺服器請求之間共用渲染工作的結果。 
+當路由有可在建置時已知的資料（例如靜態部落格文章或產品頁面）但不必關心個人化資訊時，靜態渲染非常適合。
+
+動態渲染 
+
+在請求時為每個使用者請求渲染路由。
+當路由具有針對使用者的個人化資料或具有僅在請求時才能知道的資訊（例如 cookie 或 URL 的搜尋參數）時，動態呈現非常適合。
+
+具有快取資料的動態路由 
+
+在大多數網站中，路由並不是完全靜態或完全動態的 - 它是一個頻譜。 （例如，您可以擁有一個電子商務頁面，該頁面使用定期重新驗證的快取產品數據，但也包含未快取的個人化客戶資料。）
+在 Next.js 中，您可以動態渲染包含快取和未快取資料的路由。 這是因為 RSC 有效負載和資料是分開快取的。 這使您可以選擇動態渲染，而不必擔心在請求時獲取所有資料對效能的影響。
+
+:::info
+RSC Payload 是已渲染 React Server 元件樹的緊湊二進位表示式。
+客戶端上的 React 使用它來更新瀏覽器的 DOM。 
+RSC 有效負載包含： 
+-Server Components 的渲染結果 
+-客戶端元件應呈現的位置的佔位符以及對其 JavaScript 檔案的引用 
+-從伺服器元件傳遞到客戶端元件的任何props
+:::
+#### Benefits of Server Rendering
+－伺服器元件可以減少獲取渲染資料的時間，數量以及客戶端需要發出的請求數量
+－伺服器元件可以保留敏感資料與邏輯在伺服器上，不暴露在客戶端
+－在伺服器上渲染，可以快取結果並在跨用戶中重複使用
+－在伺服器端保留較大的依賴項目，解決先前那可能會影響客戶端JS捆綁包的大小，讓客戶端對網路的需求或設備的需求不再那麼高的要求，因為客戶端不用再去下載解析執行JS。
+－在伺服器上產生可以讓使用者立即查閱的頁面不需要等候客戶端下載、解析、執行JS、渲染頁面（初始頁面載入首次內容繪製）
+－搜尋引擎優化和社交網路可共享性：搜尋引擎機器人可以使用渲染的 HTML 來索引您的頁面，社交網路機器人可以使用渲染的 HTML 為您的頁面產生社交卡預覽。
+－串流：伺服器元件可讓您將渲染工作分成多個區塊，並在準備就緒時將它們串流傳輸到客戶端。 這允許使用者更早看到頁面的部分內容，而不必等待整個頁面在伺服器上呈現。
+
+#### 伺服器元件是如何渲染的？
+
+在伺服器上，Next.js 使用 React 的 API 來編排渲染。
+渲染工作按照單獨的路線段（individual route segments）和懸念邊界（Suspense Boundaries.）被分成多個區塊，每個區塊被兩個步驟渲染：
+1.React 將元件呈現為特殊的資料格式叫做React Server Component Payload (RSC Payload).
+2.Next.js 使用 RSC Payload和客戶端元件 JavaScript 指令在伺服器上呈現 HTML。
+
+然後在客戶端中
+1.HTML被用於馬上呈現這個路由的一個快速且無法互動的預覽頁面 － 此只適用於初始頁面載入。
+2.RSC Payload就被用於協調客戶端與伺服器元件的樹與更新DOM。
+3.JS指令就用於 hydrate （React）客戶端元件，使應用可以互動。
+
+
+
+### Data Fetching
+Feature
+- [自動刪除重複的 fetch() requests ](https://nextjs.org/docs/app/building-your-application/data-fetching#automatic-fetch-request-deduping)
+
+
+我們應該在 server components 中 fetch data，因為：
++ 直接進入後端資源，保護敏感資料，更安全 (Token與API keys 不該暴露在client端）
+
+:::info
+### *為何 Token與API keys 不該暴露在client端？
+> （待續）[name=Yue][time=Wed, Jul 26, 2023 9:36 PM]
+### *我需要做 Client-side data fetching 
+[Best practice with SWR](https://nextjs.org/docs/pages/building-your-application/data-fetching/client-side#client-side-data-fetching-with-swr)
+
+:::
+
++ 可減少 server and client 的溝通開銷，和 client端 main thread 的工作量。(在同環境下 fetch data 和 render)
++ 用 **single round-trip** 減少延遲、提高效能。而不是傳統地由 client 端做multiple individual requests 來達到 multiple data fetching。
++ 減少 client-server **waterfalls**
+
+:::info
+### *什麼是single round-trip？waterfalls？
+> （待續）[name=Yue][time=Wed, Jul 26, 2023 9:36 PM]
+:::
+
+但我們仍然可以在 client components 中 fetch data，但建議使用文件中推薦的第三方套件。(SWR or React Query)(不清楚為什麼)
+
+我們也可以在 layouts, pages, [Streaming and Suspense](https://nextjs.org/docs/app/building-your-application/routing/loading-ui-and-streaming#streaming-with-suspense) 中 fetch data，不過不可能在 layouts 與其 children 之間傳遞 data，建議直接在需要的 layouts 那層 fetch data。
+
+> (even if you're requesting the same data multiple times in a route. Behind the scenes, React and Next.js will cache and dedupe requests to avoid the same data being fetched more than once.)
+
+但你需要注意兩種 data fetching patterns：Parallel and Sequential.
+
+### Data fetching patterns：Parallel and Sequential.
+
+Parallel data fetching, 在 route 中 request 會同時發出並依序載入data，此舉能減少 client-server waterfalls 和載入 data 的總時長(見Time)。
+
+![](https://hackmd.io/_uploads/Sk4RDs0c3.png)
+
+Sequential data fetching, 在 route 中 request 會互相造成依賴關係並產生 waterfalls。這種情境可能發生於有相互依賴關係的 fetch result，或在進行下個 fetch 前希望某些條件已滿足。然而這種無意的行為會增加載入的總時長。
+
+:::info
+### *如何使用這兩種 pattern?
+
+`sequential`
+
+```ts=
+async function ChildComponent({ YorProps }: { YorProps: string }) {
+  // Than wait for the Bar 
+  const ResBar = await getBar(YorProps)
+ 
+  return (
+    <ul>
+      {ResBar.map((bar) => (
+        <li key={bar.id}>{bar.name}</li>
+      ))}
+    </ul>
+  )
+}
+ 
+export default async function Page({
+  params: { yourParam },
+}: {
+  params: { yourParam: string }
+}) {
+  // Wait for the Foo first
+  const ResFoo = await getFoo(yourParam)
+ 
+  return (
+    <>
+      <h1>{ResFoo.name}</h1>
+      <Suspense fallback={<div>Loading...</div>}>
+        <ChildComponent YorProps={ResFoo.id} />
+      </Suspense>
+    </>
+  )
+}
+```
+`Parallel`
+```ts=
+export default async function Page({
+  params: { yourParam },
+}: {
+  params: { yourParam: string }
+}) {
+  // Initiate both requests in parallel
+  const yourResponseDataFoo = getFoo(yourParam)
+  const yourResponseDataBar = getBar(yourParam)
+ 
+  // Wait for the promises to resolve
+  const [DataFoo, DataBar] = await Promise.all([yourResponseDataFoo, yourResponseDataBar])
+ 
+  return (
+    <>
+      <h1>{DataFoo.name}</h1>
+      <Bar list={DataBar}></Bar>
+    </>
+  )
+}
+```
+### Best way to fetch data
+
+然而，在我們用 parallel pattern 節省了requests 時間的同時，這段等候的時間，直到 promises 被達成，使用者都無法看見畫面被渲染，這將造成 UX 下降。為了提高 UX，我們可以用 Suspense boundary 分解 rendering work 並且盡可能的展現一部份已完成渲染的內容。（Prevent Blocking Problem）
+
+
+![](https://hackmd.io/_uploads/HyYqwQMi2.gif)
+> Blocking Problems: "all or nothing"
+> 
+When using getServerSideProps, whether a page loading is triggered by a browser reload or a client-side routing, the new page content is not shown until the data fetching is fully completed (the async getServerSideProps function resolves). This can be problematic if your page contains both "quick data" and "slow data". For example, data dashboard is a typical scenario: some cards can load instantaneously, while others can take many seconds.
+
+**Suspense** was initially added by React to support code splitting; now it can be used to provide a fallback UI for async components that aren’t resolved yet, so they can render without blocking
+
+![](https://hackmd.io/_uploads/H1IxdXfo3.gif)
+> Data dashboard is a typical scenario for using **Suspense**.
+
+
+`Parallel using Suspense boundary`
+```ts=
+...
+  // Initiate both requests in parallel
+  const yourResponseDataFoo = getFoo(yourParam)
+  const yourResponseDataBar = getBar(yourParam)
+ 
+  // Wait for the yourResponseDataFoo's promise to resolve first
+  const DataFoo = await yourResponseDataFoo
+  
+ return (
+    <>
+      <h1>{DataFoo.name}</h1>
+      {/* Send the artist information first,
+          and wrap albums in a suspense boundary */}
+      <Suspense fallback={<div>Loading...</div>}>
+        <Bar promise={DataBar}></Bar>
+      </Suspense>
+    </>
+  )
+  
+// Bar Component
+async function Bar({ promise }: { promise: Promise<Bar[]> }) {
+  // Wait for the albums promise to resolve
+  const Bar = await promise
+ 
+  return (
+    <ul>
+      {Bar.map((b) => (
+        <li key={b.id}>{b.name}</li>
+      ))}
+    </ul>
+  )
+}
+```
+
+:::danger
+### preloading pattern ?
+ > **This pattern is a further optimization on top of parallel data fetching.** Suggest that optionally exposing a preload() export in utilities or components that do data fetching.
+
+`components/User.tsx`
+```ts=
+import { getUser } from '@utils/getUser'
+ 
+export const preload = (id: string) => {
+  // void evaluates the given expression and returns undefined
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void
+  void getUser(id)
+}
+export default async function User({ id }: { id: string }) {
+  const result = await getUser(id)
+  // ...
+}
+```
+`app/user/[id]/page.tsx`
+```ts=
+import User, { preload } from '@components/User'
+ 
+export default async function Page({
+  params: { id },
+}: {
+  params: { id: string }
+}) {
+  preload(id) // starting loading the user data now
+  const condition = await fetchCondition()
+  return condition ? <User id={id} /> : null
+}
+```
+
+> 
+
+    Good to know:
+
+        The preload() function can have any name. It's a pattern, not an API.
+        This pattern is completely optional and something you can use to optimize on a case-by-case basis. 
+        Now you don't have to pass promises down as props and can instead rely on the preload pattern.
+
+
+:::
+
+### server-only 
+> [name=Yue][time=Sat, Jul 29, 2023 2:34 PM]
+
+### Hydration
+> [name=Yue][time=Wed, Aug 2, 2023 8:59 AM]
+> What is it
+> How is it important
+
+### Reference
++ [nextjs.org](https://nextjs.org/docs)
++ [DEV Community](https://dev.to/zenstack/a-deep-dive-into-next13-data-fetching-114n)

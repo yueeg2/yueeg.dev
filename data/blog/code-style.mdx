@@ -1,0 +1,156 @@
+---
+title: 'Coding Style'
+date: '2022-03-05'
+lastmod: '2022-03-05'
+tags: ['clean-code', 'fundamental', 'study']
+draft: false
+summary: '...雖然說要設計出完全符合 OCP 與 SRP 的程式是過於虛無飄渺，這個目標也不是進行重構後最終想要獲得的結果，因此，經過重構的程式只要是可測試的、容易閱讀的、對擴增是較友善的，就可以通過。'
+images: ['/static/images/twitter-card.png']
+---
+# Code Style 經驗
+
+<TOCInline toc={props.toc} exclude="Introduction" />
+
+## React Style
+- Inline-style
+- Styled components
+### Inline-style
+```jsx=
+<div className={{backgroundColor: '#434343'}}></div>
+```
+```jsx=
+const object = {backgroundColor: '#434343'};
+<div className={object}></div>
+```
+缺點
+- 無法實作 media-query、hover effect
+### Styled components
+- CSS-In-JS library 
+- use the components props value to tweak css style.
+
+Install
+```bash=
+npm install styled-components
+```
+Example
+```jsx=
+import styled from 'styled-components';
+export const DeteilTitle = styled.div``
+```
+Disassemble
+```jsx=
+export const DeteilTitle = styled.{HTMLTag}``
+```
+優點：依賴 props 達成動態改動 style。
+```jsx=
+const Title = styled.div` ... 
+color: ${props => props.skybule ? 'skybule': 'white'}
+`
+
+<Title skybule={true}>Title</Title>
+```
+缺點
+- 用 styled-component 建構的元件是一堆 styled-component 自動產生的亂碼
+![](https://i.imgur.com/UQbu6Zs.png)
+
+Solution
+```jsx=
+const MyComponent = ({red, propsClassName}) =>{
+return (
+    <div className={propsClassName}>
+        <div className="MyCpn_img"></div>
+    </div>
+)
+}
+
+const StyledComponent = styled(MyComponent)`
+background-color: #787878;
+.MyCpn_img {
+...
+};
+MyCpn_info {
+...
+color: ${props => (props.red ? 'red' : 'black')};
+}
+`
+const StyledComponent2 = styled(MyComponent)`
+background-color: #434343;
+.MyCpn_img {
+...
+};
+MyCpn_info {
+...
+color: ${props => (props.red ? 'black' : 'red')};
+}
+`
+
+export { StyledComponent2 , StyledElement } 
+
+```
+[Link](https://ithelp.ithome.com.tw/articles/10215800)
+## Vanilla JS
+### Don't to that:
+> code: /CLM/logparser/js/logparser.js ~2021.08.30
+```javascript=
+select.onchange = function (event) {
+    let select = document.getElementById("DirList")
+    if (disableFile.length != 0 || configFile.value != '') {
+      Dialog.prevent('尚有更動未儲存，確定要切換主機編輯 Config 嗎？', 'select')
+    } else {
+      for (i = 0; i < divTitle.length; i++) {
+        if (divTitle[i].children[0].innerHTML.includes(select.value)) {
+          if (select[i].dataset.files == "")
+            ul = drawUl(new Array())
+          else
+            ul = drawUl(select[i].dataset.files.split(','))
+          divTitle[i].classList.remove('displayNone')
+          divTitle[i].innerHTML = ""
+          let titlespan = document.createElement("span");
+          titlespan.innerText = select.value
+          divTitle[i].appendChild(titlespan);
+          divTitle[i].appendChild(ul);
+        } else {
+          divTitle[i].classList.add('displayNone');
+        }
+      }
+    }
+  }
+```
+好的程式碼會回答以下在第一時間出現的問題
+- 這個 function 在什麼情況下會被觸發
+- 這個 function 做了什麼事
+- 怎麼做的
+
+不好的程式碼無法回答上述問題，接著將衍生以下問題
+- 這個 function 做了哪些事
+- 這個 function 怎麼做這些事
+
+更不好的程式碼無法回答上述問題，接著將衍生出以下問題
+- 這個 function 用到了哪些變數來做這些事
+- 這些變數各別代表了什麼
+
+如果每次變更模組都需要經過第三層解析，就需要花費較大的時間成本來變更模組。會造成此結果的原因是違反了程式設計的 OCP 與 SRP 原則。而若不進行程式邏輯上的重構實作的話，這種難以閱讀與變更的程式碼將變得更難以閱讀與變更。
+
+雖然說要設計出完全符合 OCP 與 SRP 的程式是過於虛無飄渺，這個目標也不是我們進行重構想要獲得的結果（想要獲得的結果是【易閱讀】【易擴增】），因此經過重構的程式只要是可測試的、容易閱讀的、對擴增是較友善的，就可以通過。
+
+### 較好的 Code Style
+```javascript=
+    async function deleteIP(HadoopInput) {
+        setLoading()
+        HadoopInput.value = ''
+        data = (await checkHadoop(HadoopInput.value)).data
+        setLoaded()
+        Notify.success('刪除成功')
+        setTimeout(() => { window.location.reload() }, 1000);
+    };
+```
+雖然有兩個令人匪夷所思的地方（第3, 4行），但可以大略知道此 function 在做刪除 IP（在刪除時會被觸發）的動作、刪除之前會先做檢查。
+
+## 重構
+
+- 提取邏輯
+- 一個 function 只做一件事
+
+:::danger
+- Nodelist 不是 array 無法用 map(). (JS 不會顯示用法錯誤)。
+:::

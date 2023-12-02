@@ -1,0 +1,45 @@
+---
+title: '疑難雜症'
+date: '2023-11-28'
+tags: ['next-js']
+draft: false
+summary: 'dubious'
+images: ['/static/images/twitter-card.png']
+---
+
+# 疑難雜症
+
+## next.js
+
+### (cache: MISS)
+
+>  Cache misses can slow down performance.
+
+A cache miss occurs when a computer processor needs data that is 
+not currently stored in its fast cache memory, so it has to retrieve it from a slower 
+main memory. To improve performance, computer systems use caching 
+strategies to minimize their impact.
+
+> Cache: enables computer systems, including websites, web apps, and mobile apps, to store file copies in a temporary location.
+
+
+3 ways to Reduce
++ Increase the Cache Lifespan
++ Optimize Cache Policies
++ Expand Random Access Memory (RAM)
+
+## HTMLTag
+
+### set `<input>` attribute: `accept` to `.json` but user still can change the select the invalid file type to override.
+
+Example
+
+```
+<input type="file" accept="application/json,.json" />
+
+```
+**The accept attribute doesn't validate the types of the selected files. **
+
+it provides hints for browsers to guide users towards selecting the correct file types. It is still possible (in most cases) for users to toggle an option in the file chooser that makes it possible to override this and select any file they wish, and then choose incorrect file types.
+
+Because of this, you should make sure that the accept attribute is backed up by appropriate server-side validation.
