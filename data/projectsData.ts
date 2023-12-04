@@ -10,7 +10,7 @@ const projectsData = [
     title: 'Next App',
     description: `An application that using next.js`,
     imgSrc: '/static/images/next-app.png',
-    href: 'https://github.com/yueeg2/next-app',
+    href: 'https://github.com/yueeg2/nextjs-app',
   },
 ]
 
