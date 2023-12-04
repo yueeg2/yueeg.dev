@@ -1,0 +1,31 @@
+---
+title: 'Vanilla React Weakness'
+date: '2022-12-04'
+lastmod: '2022-12-04'
+tags: ['react', 'study', 'library']
+draft: false
+summary: ''
+images: ['/static/images/twitter-card.png']
+---
+
+# Vanilla React Weakness
+
+<TOCInline toc={props.toc} exclude="Introduction" />
+
+## 前言
+使用 React 原生的狀態管理機制主要會遭遇以下兩個問題：
+
++ props drilling 
++ context 造成整顆子樹渲染 (can be fixed by `useMemo`, `useCallback` and `memo`. No needs to use Redux)
+
+#### If not, use Redux + Redux Toolkit.
+Redux 是在 2015 年由 Dan Abramov 開發的一個基於 Flux 架構的狀態管理套件。
+配合使用 Redux Toolkit 可以減少創建 store、reducer 的 boilerplate code，並且讓原本更新 Redux store 中的狀態時需要以 immutable 的語法變成可以用 mutable 的方式撰寫
+
+## `useSyncExternalStore` API
+
+基於 Flux、Atomic、Proxy 實作的套件，在偵測狀態改變並觸發元件渲染的實作都採用。
+
+## Reference
+
++ [React 各個狀態管理套件比較與原理實現 feat. flux, atomic, proxy, signal](https://medium.com/%E6%89%8B%E5%AF%AB%E7%AD%86%E8%A8%98/a-comparison-of-react-state-management-libraries-ba61db07332b)

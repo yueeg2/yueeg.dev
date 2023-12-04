@@ -1,0 +1,43 @@
+---
+title: 'Architectures'
+date: '2022-12-04'
+lastmod: '2022-12-04'
+tags: ['architecture', 'study']
+draft: false
+summary: 'Atomic, Flux and MVC'
+images: ['/static/images/twitter-card.png']
+---
+# Concept
+依照發明時間順序：近->遠
+
+<TOCInline toc={props.toc} exclude="Introduction" />
+
+## Atomic
+
+## Flux (React) - 2014
+centralized Dispatcher, Store, Action and View 
+
++ View - Render UI by the new update of View, notified by Store.
++ Action - Dispatch after handling all events notified by View
+  + payload: 
+    ```
+    {
+    actionType: "",
+      data: {
+          title: "Understanding Flux step by step",
+          author: "Sharvin"
+      }
+    }
+    ```
++ Dispatcher - Dispatch Action with payload to Store
++ Store - Store with different actionType (based on payload), use Node.EventEmitter to update and notify.
+
+Flux 對比於 MVC 的前端架構有以下幾個優點：
+
++ 改善資料的一致性 (better data-handling strategy as apps grow larger and more complicated)
++ 更容易找出哪裡有 bug，容易修改 (one-way data flow)
++ 寫出更好的 unit tests
+
+## MVC - 2003
+
+Model, View, and Controller

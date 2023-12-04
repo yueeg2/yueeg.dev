@@ -2,8 +2,8 @@
 const siteMetadata = {
   title: 'Yue Blog',
   author: 'Yue Su',
-  headerTitle: 'Yue',
-  description: 'A React developer from Taipei, Taiwan.',
+  headerTitle: 'Yue Blog',
+  description: 'Let\'s see what I found ! :D',
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://tailwind-nextjs-starter-blog.vercel.app',
@@ -11,7 +11,7 @@ const siteMetadata = {
   siteLogo: '/static/images/logo.png',
   socialBanner: '/static/images/twitter-card.png',
   mastodon: 'https://mastodon.social/@mastodonuser',
-  email: 'virtual.yue@yoursite.com',
+  email: 'virtual.yue@gmail.com',
   github: 'https://github.com/yueeg2',
   linkedin: 'https://www.linkedin.com/in/iamyue',
   locale: 'en-US',
