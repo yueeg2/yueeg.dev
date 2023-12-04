@@ -1,5 +1,14 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
+  tags: {
+    Study: 'Mmm... Interesting...',
+    'Next-js': 'React Framework. React SSR.',
+    Uiux: 'I once wanted to be a designer...',
+    Theory: 'Do you wanna have a debate?',
+    Architecture: 'It\'s art.',
+    Others: 'Maybe you\'ll find some ice cream. :)',
+    Undefined: 'Let\'s see what I found ! :D'
+  },
   title: 'Yue Blog',
   author: 'Yue Su',
   headerTitle: 'Yue Blog',

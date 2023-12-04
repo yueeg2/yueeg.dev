@@ -77,9 +77,14 @@ export default function ListLayoutPostTags({
 
   return (
     <>
+      <div className="space-y-2 pb-3 pt-3 md:space-y-5">
+        <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
+          {siteMetadata.tags[title]}
+        </p>
+      </div>
       <div className="flex flex-col items-start justify-start divide-y divide-gray-200 dark:divide-gray-700 md:mt-2 md:flex-row md:items-center md:justify-center md:space-x-6 md:divide-y-0">
         <div className="space-x-2 pb-8 pt-6 md:space-y-5">
-          <div className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
+          <div className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:border-r-2 md:px-6 md:text-6xl md:leading-14">
             {pathname.endsWith('/') ? (
               <h3 className="font-bold uppercase text-primary-500">Latest</h3>
             ) : (
@@ -98,13 +103,13 @@ export default function ListLayoutPostTags({
             return (
               <div key={t} className="mb-2 mr-5 mt-2">
                 {pathname.split('/tags/')[1] === slug(t) ? (
-                  <h3 className="inline px-3 py-2 text-sm font-bold uppercase text-primary-500">
+                  <h3 className="inline py-2 text-sm font-bold uppercase text-primary-500">
                     {`${t} (${tagCounts[t]})`}
                   </h3>
                 ) : (
                   <Link
                     href={`/tags/${slug(t)}`}
-                    className="px-3 py-2 text-sm font-medium uppercase text-gray-500 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-500"
+                    className="py-2 text-sm font-medium uppercase text-gray-500 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-500"
                     aria-label={`View posts tagged ${t}`}
                   >
                     {`${t} (${tagCounts[t]})`}
@@ -116,11 +121,7 @@ export default function ListLayoutPostTags({
         </div>
       </div>
       <div>
-        <div className="pb-6 pt-6">
-          <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:hidden sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
-            {title}
-          </h1>
-        </div>
+
         <div className="flex sm:space-x-24">
           <div>
             <ul>

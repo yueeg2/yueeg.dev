@@ -9,7 +9,7 @@ import siteMetadata from '@/data/siteMetadata'
 import ListLayout from '@/layouts/ListLayoutPostTags'
 
 
-export default async function Page({params}) {
+export default async function Page({ params }) {
 
   const tagCounts = tagData as Record<string, number>
   const tagKeys = Object.keys(tagCounts)
@@ -25,11 +25,6 @@ export default async function Page({params}) {
     sortPosts(allBlogs.filter((post) => post.tags && post.tags.map((t) => slug(t)).includes(tag)))
   )
   return <>
-    <div className="space-y-2 pb-3 pt-3 md:space-y-5">
-      <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
-        {siteMetadata.description}
-      </p>
-    </div>
 
     <ListLayout posts={posts} title={title} />
 
