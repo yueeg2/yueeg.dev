@@ -1,0 +1,125 @@
+---
+title: 'CSP'
+date: '2022-12-05'
+lastmod: '2022-12-05'
+tags: ['security', 'study']
+draft: false
+summary: 'The unsafe-inline Content Security Policy (CSP) keyword allows the execution of inline scripts or styles.'
+images: ['/static/images/twitter-card.png']
+---
+
+<TOCInline toc={props.toc} exclude="Introduction" />
+# CSP
+> Keywords: security | HTTP | header 
+
++ Content-Security-Policy is the name of a HTTP response header that modern browsers use to enhance the security of the document (or web page).
++ It allows you to restrict which resources (such as JavaScript, CSS, Images, etc.) can be loaded, and the URLs that they can be loaded from.
++ It is designed to reduce the attack surface of Cross Site Scripting (XSS) attacks, later versions of the spec also protect against other forms of attack such as Click Jacking.
++ Not only used as a HTTP response header, you can also apply it via a meta tag!
+
+## CSP Directive Reference
+
+`default-src`
+Defines the default policy for every fetching resources
+`script-src`
+Defines valid sources of JavaScript.
+
+## Source List Keyword (Source Value)
+`*`
+`'none'`
+Prevents loading resources from any source.
+`'self'`
+Allows loading resources from the same origin 
+`data:`
+Allows loading resources via the data scheme
+`https:`
+Allows loading resources only over HTTPS on any domain.
+
+### In-Common
+Whenever you see the prefix `unsafe` in a CSP keyword, that means that using this is not the most secure way to go. 
+It is better to avoid using HTML event handler attributes (such as onload, onclick, onmouseover etc.).
+
+### Keyword should be avoid 
++ `'unsafe-inline'` - usage: `script-src: 'unsafe-inline'`
+  + It allows the execution of inline scripts or styles, including JavaScript event handlers.
+  + `'nonce'` or `'hashWhen'` is the better options to allow inline scripts or styles on a page that uses CSP.
++ `'unsafe-hashes'` - usage: `script-src 'unsafe-hashes' 'sha256-abc...'`
+  + It allows the execution of inline scripts within a JavaScript event handler attribute of a HTML element.
+
+### Keyword that was safe
++  `'self'` - usage: `script-src: 'self'`
+  + This usage only be allowed to load JS from the same origin.
+
+### Starter Policy
+```
+default-src 'none'; 
+script-src 'self'; 
+connect-src 'self'; 
+img-src 'self'; 
+style-src 'self';
+base-uri 'self';
+form-action 'self'
+```
+This policy allows images, scripts, AJAX, form actions, and CSS from the same origin, and does not allow any other resources to load (eg object, frame, media, etc).
+
+### Nginx Content-Security-Policy Header
+```
+server {
+  add_header Content-Security-Policy "default-src 'self';";
+}
+```
+
+## nonce
+A nonce is a unique, random string of characters created for a one-time use.
+It allows certain inline scripts or styles to execute, bypassing strict CSP directives.
+
+### Adding a nonce with Next.js Middleware
+Middleware enables you to add headers and generate nonces before the page renders.
+How it works: Every time a page is viewed, a fresh nonce should be generated.
+
+> Warning: It must be used by dynamic rendering strategy.
+> Recommend: ignoring matching prefetches (from next/link) and static assets that don't need the CSP header.
+> Middlewar matcher: filter Middleware to run on specific paths.
+
+```ts=
+const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  const cspHeader = `
+    default-src 'none';
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+    style-src 'self' 'nonce-${nonce}';
+    img-src 'self' blob: data:;
+    font-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    block-all-mixed-content;
+    upgrade-insecure-requests;
+`
+  // Replace newline characters and spaces
+  const contentSecurityPolicyHeaderValue = cspHeader
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+ 
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-nonce', nonce)
+ 
+  requestHeaders.set(
+    'Content-Security-Policy',
+    contentSecurityPolicyHeaderValue
+  )
+```
+
+### Reading the nonce
+In a Server Component using headers:
+
+```ts=
+  const nonce = headers().get('x-nonce')
+
+```
+
+# Resource
+
++ [Content Security Policy Reference](https://content-security-policy.com/)
++ [Source List Reference](https://content-security-policy.com/#source_list)
++ [Next.js - CSP](https://nextjs.org/docs/pages/building-your-application/configuring/content-security-policy)
