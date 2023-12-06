@@ -1,0 +1,645 @@
+---
+title: 'Clean Code Part 1 - Clean Code 易讀性'
+date: '2021-12-08'
+lastmod: '2021-12-14'
+tags: ['clean-code']
+draft: false
+summary: ''
+images: ['/static/images/twitter-card.png']
+---
+
+<TOCInline toc={props.toc} exclude="Introduction" />
+
+## Robert C. Martin
+- Author
+- 出版 *`Agile Software Development Principles Patterns and Practices`* ，獲得 2002年 Jolt 圖書大獎。
+- 敏捷開發大師
+
+### 關心
+1. 細節
+  - 軟體開發之於建築結構
+2. 可讀性
+    - 易維護
+
+#### 此書為 clean code 學派主張之方法論
+- :heavy_check_mark: What
+- :heavy_check_mark: Why 
+- :heavy_multiplication_x: How
+
+## Clean code 哲學 `Chapter 1`
+
+- 不簡潔的代價
+
+![](https://i.imgur.com/G7v0weE.png)
+
+- 提高易讀性
+
+## 有意義的命名 `Chapter 2`
+
+> 意圖命名：能透露內容類型與意義。
+
+為避免誤導、不好溝通(唸不出來)、不好搜尋、編碼、思維的轉換。
+
+### 編碼例外：匈牙利標誌法
+介面與實作：建議在實作進行編碼
+
+### 約定成俗
+1. 類別
+  - 名詞
+    - Customer
+    - Account
+    - Manager
+    - Processor
+    - Data
+    - Info
+  - 名詞片語
+    - AddressParser
+2. 方法 
+  - 動詞
+    - save
+  - 動詞片語
+    - postPayment
+    - deletePage
+3. 根據 javabean 標準：
+  - Accessor
+    - **get**Accessor
+  - Predicates
+    - **is**Predicate
+  - Mutators(修改器)
+    - **set**Mutators
+4. 一種抽象概念，使用一種字詞代表
+  - **取得**
+    - 英文翻譯：`fetch`, `retrieve`, `get`。 You can only pick one translation.
+      > 不要為了不同類別命名不同翻譯來解釋同一個概念（取得）。
+5. CS 領域術語
+  - AccountVisitor
+  - JobQueue
+
+## 函式 `Chapter 3`
+#### 設計函式時應該：
+1. 簡短、容易看透意圖。
+2. 只做一件事：只做**同層抽象概念**的事。
+    - 判斷標準：
+        - 無法從原始目標函式中提煉（Extract）出另一個新函式、更改原有函式的層次。
+        - 無法被合理分成不同段落（Block）。
+    - 若一函式擁有混合層次的抽象概念且不處理：
+        - 無法分辨某個表達式是 基本概念 還是 細節。
+        - 細節雜處於函式中，造成破窗效應。
+3. 降層準則：
+  - 由廣到細：由上而下閱讀程式碼
+    - 範例：
+      為了（To）要包含設定和拆解，我們先納入設定，再納入測試頁的內容最後納入拆解。
+      為了要納入這些設定值，如果是套件的話，我們會納入套件設定步驟然後再引入一般的設定步驟。
+      為了要納入套件設定，我們先搜尋「SuiteSetup」頁面的上層，然後加入納入該頁面路徑的敘述
+      為了要搜尋上一層...
+
+### `Switch` 敘述
+#### 副作用：
+  - 無可避免的做n件事
+  - 冗長（難以簡短）
+  - 違反 SRP
+  - 可能違反 OCP
+#### 改善方法：
+  - 抽象工廠
+    - 使用 Switch statement 產生介面實體(instance)
+      > e.g.
+    - 利用多型(Polymorphism)並藉由介面(implement)指派函式
+      > e.g.
+
+### 函式參數的數量
+
+從測試角度來看參數的數量：為了需要確保所有輸入參數的組合都順利運作，越多參數是越困難的事情。
+- 最好：`0` 
+- 好：`1`
+- 還好：`2`
+- 恐怖：`3` or more
+    
+#### 單一參數（monadic）
+函式將做一些操作，將傳入參數轉換成某種東西後回傳。
+
+##### 函式特性：
+1. 與此參數有關
+2. 事件型
+  - 特色：可以是無輸出，利用參數去修改系統狀態
+    - 例：密碼輸入失敗
+
+#### 兩個參數（dyadic）
+- 相對單一參數難理解
+- 恰當情況：直角坐標系上的點
+- 不邪惡，但有代價。 若有可轉成單一參數形式，應適當利用。
+    - 以 `writeField(outputSeream, name)` 為例：
+      - 第 1. 種方法：**使用`.`呼叫**：使 `writeField` 變成 `outputSeream` 中成員之一，就能使用 `outputSeream.writeField()`
+      - 第 2. 種方法：**使 `outputSeream` 成為類別中的成員變數**
+      - 第 3. 種方法：建立新類別 `FieldWriter` ，將 `outputSeream` 引入到這個新類別的建構子中，在 `FieldWriter` 提供 `write` 方法。
+
+#### 三個參數(triadic)
+- 相對兩個參數更難理解
+- 應盡力避免。若有可轉成單一或兩個參數形式，應適當利用。
+
+#### 物件型態的參數
+- 統整概念相似的參數：利用建立物件減少參數的數量。
+  - 修改前: `Circle makeCircle(double x, double y, double radius);`
+  - 修改後: `Circle makeCircle(Point center, double radius);`
+
+#### 旗標參數(flag)
+使用旗標參數是一種非常爛的做法。
+
+#### 輸出型的參數
+在 OOP 出現後就消失，被 this 取代。應該要避免使用。
+如果函式必須要改變物件的某種狀態，應讓該物件改變自己本身的狀態。
+
+### 函式的命名
+- 長比短好
+- 能解釋函式的意圖
+- 解釋函式參數的順序性與意圖
+    - 單一參數：動詞/名詞配對 `e.g. write(name)`
+- 關鍵字形式命名
+    - `e.g. assertExpectedEqualsActual(Expected,Actual)`
+
+### 函式的設計：符合無副作用
+副作用的定義：
+- 保證只做一件事，卻暗中做了其他事情。
+    ```java
+    public class UserValidator {
+    public boolean checkPassword(string userName, string password) {
+      User user = UserRep.findByName(userName);
+        if (user != null) {
+            if (user.password == password) {
+                Session.initialize(); 
+                //side effects 使用者並不知道此函式內會改變Session，這是有風險的                                     //，除非將函式名稱修改為checkPasswordAndInitializeSession
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }}
+    ```
+- 時空耦合(temporal coupling)
+    - 函式只能在特定的工作階段狀態時被呼叫，如果不是就會出問題。
+
+### 邏輯細節
+#### 指令與查詢應分離
+```java
+public boolean set(String attribute, String value);
+
+// 無法判斷是詢問username被設為unclebob或是將username設為unclebob並回傳...
+if (set("username","unclebob")) ... 
+
+// 應該修改為    
+if (attributeExists("username")) { // 查詢
+    setAttribute("username","unclebob"); // 指令
+}
+```
+
+#### 應用例外處理取代傳回錯誤碼
+若傳回錯誤碼：
+- 違反指令與查詢分離原則
+- 導致深層巢狀結構
+
+#### 應提取 Try/Catch
+在正常的程式中混入 Try/Catch 是難看的。將會混淆程式結構。因此應將提取 Try/Catch 區域。
+
+#### 錯誤處理是獨立的一件事
+- 一件事意指：can be extracted
+- 防止列舉定義錯誤碼 / 重複
+
+#### 不要重複自己
+重複的程式碼可能是軟體裡所有邪惡的根源。許多準則與慣例是為了他而發明的。例如：
+  - 柯德正規法，消除資料的重複。
+  - 物件導向程式設計，將程式碼集中到基本類別中。
+
+除此之外還有：結構化程式設計、剖面導向程式設計、元件導向程式設計。
+
+##### [結構化程式設計](https://hackmd.io/uCM8m9MFTASRbnWCXpw2jQ#%E7%B5%90%E6%A7%8B%E5%8C%96%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88)
+每個函式與其內部的區塊，應只有一個進入點與離開點。
+  - 代表每一個函式中只能有一個 `return` 
+  - 迴圈內不可有任何 `break` / `continue`
+  - 永遠不可有 `goto`
+
+## 有意的註解 `Chapter 4`
+- 法律型
+- 資訊型
+- 對意圖解釋
+- 闡明
+- 告誡後果
+- 放大重要性
+
+IDE
+```
+@deprecated
+// TODO:
+//!
+//#region
+///#endregion
+```
+## 編排 `Chapter 5`
+如何編排是來自於團隊的共同準則
+
+## 物件及資料結構 `Chapter 6`
+- 暴露被函式操控的**資料**（資料呈具體表示）
+    ```java
+    // 具體的座標點
+    public class Point {
+    public double x;
+    public double y;
+    }
+    ```
+- 暴露操控資料的**函式**（亦可表示資料、但呈抽象表示）
+    ```java
+    // 抽象的座標點 
+    public class Point {
+    double getX();
+    double getY();
+    void setCartestion(double x, double y);
+    double getR();
+    double getTheta();
+    void setPolar(double r, double theta);
+    }
+    ```
+### 比較
+```java
+// 具體化的交通工具類別 （Gallons）
+FuleTankCapacityInGallons() {
+  double getGallonsOfGasoline();
+}
+
+// 抽象化的交通工具類別（Percent）
+public interface Vehicle {
+  double getPercentFuelRemaining();
+}
+```
+### 資料/物件的反對稱性
+:::info
+資料結構型的程式：易添加新函式不更動其原有結構，
+物件導向型的程式：易添加新類別而不需更動原有函式。
+:::
+- 物件：隱藏其資料在抽象後面不被暴露。
+- 資料結構：其本質必會暴露資料在外。（不適用德摩特爾法則）
+- 不要創造出奇美拉
+
+:::warning
+要讓每件事物都是個物件是個天方夜譚，有時候程式會適用資料結構而不是物件導向。
+:::
+### 德摩特爾法則（物件導向）
+- 物件不該透過存取者暴露其內部結構
+    - Train wreek(火車事故) - 呼叫函式回傳的物件的方法
+      ```java
+      outputDir = ctxt.getOptions().getScratchDir().getAbsolutePAth()
+      ```
+     - 改善
+         ```java
+         // options、scratchDir、AbsolutePAth 仍暴露在外
+         Options opts = ctxt.getOptions();
+         File scratchDir = opts.getScratchDir();
+         final String outputDir = scratchDir.getAbsolutePAth();
+         ```
+    - 再改善(物件型)
+        ```java
+        // 隱藏了 scratchDir、AbsolutePAth
+        BufferedOutputStream bos = ctxt.createScratchStream(classFileName);
+        ```
+- 不適用屬性存取函式
+
+
+### 資料傳輸物件(Data Transfer Object, DTO)（資料結構）
+一個類別裡只有公用變數，沒有任何函式。用在：
+- 與資料庫溝通
+- 解析 socket 回傳的訊息
+
+## 錯誤處理 `Chapter 7`
+### 使用例外事件比回傳錯誤碼好
+在遇到一個錯誤時，拋出一個例外事件。
+
+### 在開頭寫下 Try-Catch-Finally
+無論 Try 發生什麼， Catch 讓程式維持在一致的狀態。因此可以先寫測試程式預設應該要拋出錯誤，若測試程式失敗，就該在原函式增加新的例外處理。用其概念實踐測試驅動開發來完成我們的程式。
+
+### 使用不檢查型例外處理
+:::info
+在一般的程式開發而言，檢查型例外在相依性上所花費的功夫比實際效益高。
+:::
+- 檢查型例外違反OCP，除非你在寫一個關鍵重要的函式庫。
+
+### 從呼叫者角度定義定義例外類別
+作法：包裹(wrapper)呼叫的 API，確保其只會回傳共用的例外型態。
+- 好處：
+    1. 減少對第三方 API 依賴，可拋出自製例外事件
+    2. 減少若未來需更換不同函式庫的力氣
+    3. 在測試可模擬第三方 API 呼叫 
+    4. 不被第三方侷限
+
+### 特殊情況模式(Special Case Pattern)
+- 創立一個類別或物件替你處理特殊情況 (回傳 Special Case 物件)
+
+### 不要回傳／傳遞 null （檢查 null）
+只要有一處忘記檢查 null，就會造成混亂。因此為了整體程式的易讀與耐用性，應預設禁止傳 null 給函式。（根據經驗建議）
+
+## 邊界 `Chapter 8`
+使用第三方套件的缺點就是，如果沒有透過適當的方式呼叫，將會使軟體邊界模糊不清：
+```java=
+Map sensors = new HashMap();
+Sensor s = (Sensor)sensors.get(sensorId);
+```
+把Map隱藏並封裝進Sensors類別中，轉型及多型都在Sensor類別中處理，若真的需要修改，就只要修改Sensor就好：
+```java=
+public class Sensors {
+  private Map sensors = new HashMap();
+  public Sensor getById(String id){
+     return (Sensor) sensors.get(id);
+  }
+}
+```
+### 學習式測試(Learning tests)
+- 引入使用 API 前，先為他編寫測試
+    ```
+    好處：
+        1. 研究並實際使用第三方 API 
+        2. 易於將知識封裝與隔離，應用到系統中不引發問題。
+        3. 當第三方 API 升級，測試可以幫助發現升版問題。
+        4. 邊界測試
+    ```   
+:::warning
+即使不採用學習式測試，依然需要一套與生產程式碼一樣方式的邊界測試。如果沒有邊界測試協助減輕升級與整合會造成的負擔，開發團隊停留在舊版本程式的時間可能會比原本應該停留的時間更久。
+:::
+
+### 使用還不存在的程式
+:::info
+團隊已知想要的介面的模樣：例如，『調整』傳送者到特定頻率，並『發送』得自於這個串流資料的類比訊號。但這個API還沒被設計出來，所以團隊並不知道上述任務要怎麼完成。但可以未來在完成那些細節。因此他們定義了自己剛剛所希望的介面，就可以避免受困於還沒出現的程式，繼續進行開發。
+:::
+
+步驟
+- 定義 **預測的介面** `Transmitter`
+- 從 `Transmitter` 隔離 Controller 類別，維持其整潔，並等待真實的 `Transmitter` API 定義好。
+- 等 `Transmitter` API 定義好後，寫出 `Adapter` 作為跨接的橋樑。
+- `Adapter` 封裝了與 API 的互動行為。未來當 API 升級的時候，`Adapter` 是唯一要被修改的地方。
+
+好處
+- 為測試提供 接縫 Seam
+    - 若使用 `fake Trasmitter` 即可測試 Controller 類
+- 獲得 Transmitter API 後即可產生邊界測試。
+
+![](https://i.imgur.com/UJyNVAG.png)
+
+:::success
+透過以上的兩種方法(封裝特定介面或引用、使用Adapter轉接API)，我們將可以有效且簡潔使用第三方軟體，當第三方軟體發生變動時，只需要更改最少的地方，也就是說，維護會更加方便
+:::
+
+## 單元測試 `Chapter 9`
+> 「防止腐敗的程式碼」
+
+```
+TDD 3 大法則
+1. 在寫一個測試不過的單元測試前不寫任何有關產品的程式
+2. 寫出剛好不過的單元測試
+3. 寫出剛好能通過剛剛不過測試的程式
+```
+> 保持測試程式的整潔等價保持產品程式彈性。
+
+好處
+- 保持產品可擴充性
+- 可維護性
+- 再利用性
+
+
+### 整潔的測試
+符合建造-操作-檢查模式(Build-Operate-Check)
+1. 建立測試資料
+2. 操作測試資料
+3. 檢查完成前述兩項步驟後是否產生預期中結果
+
+### 雙標的事情
+> 有些事不會在產品環境下做，但在測試環境合適。
+- 編碼命名
+### 一個測試一個概念
+若超過一個概念
+- 有的測試將被遺漏
+
+改善方法
+- 一個測試函式僅側一個概念、並最小化斷言的數量
+
+### FIRST
+
+## (好的)類別 `Chapter 10`
+結構(降層法則)
+```java
+ public class Test {
+      公用靜態常數
+      私有靜態變數
+      私有實體變數
+      應減少使用公用實體變數
+      公用函式
+      私有函式
+      ...    
+  }
+```
+
+### 封裝
+使變數、函式保持私有型態(private)，如有測試需求才開放成 protected 。
+
+#### 簡短
+特徵
+- 簡明的名稱
+- 明確不模糊
+
+### 符合單一職責原則 `Single-Responsibility Principle`
+- 確認職責(修改的理由)：助於建立抽象概念
+
+類別應符合
+- 封裝單一職責
+- 只有一個修改理由
+- 與其他類別合作完成系統需求
+
+### 凝聚性(內聚)
+判斷標準
+- 方法裡操作越多的變數，代表這個方法更凝聚於該類別。
+
+效果
+- 將會得到許多小型類別
+- 變數更具說明性
+- 類註解效果的函式與類別宣告
+- 維持可讀性
+
+### 構思組織 for 變動需求
+更動 必須被打開、進行修改的類別 **V.S.** 一組封閉的類別
+> 單一職責原則(Single-Responsibility Principle)
+> 開放封閉原則(Open-Close Priciple)
+- 對於擴展：具有開放性
+- 對於修改：具有封閉性
+- 併入新功能：擴充
+- 對測試
+
+### 修改？隔離。
+建立介面(interface)
+```java
+public interface StockExchange { 
+	Money currentPrice(String symbol); 
+}
+```
+於類別中實作
+```java
+public Portfolio { 
+    private StockExchange exchange; 
+    public Portfolio(StockExchange exchange) { 
+    this.exchange = exchange; 
+  }
+}
+```
+測試：為介面建立嘗試型實作
+```java
+public class PortfolioTest {
+    private FixedStockExchangeStub exchange;
+    private Portfolio portfolio;
+
+    ©Before
+    protected void setup() throws Exception {
+        exchange = new FixedStockExchangeStub();
+        exchange.fix("MSFT", 100);
+        portfolio = new Portfolio(exchange);
+    }
+
+    ©Test
+    public void GivenFiveMSFTTotalShouldBe500() throws Exception {
+        portfolio.add(5, "MSFT");
+        Assert.assertEquals(500, portfolio.value());
+    }
+}
+```
+
+### 相依性反向原則(Dependency Inversion Principle, DIP)
+「利用介面(interface)與抽象類別(abstract class)來幫助我們隔離相依於具體細節所帶來的風險，利用這樣的方式進行耦合最小化，類別即遵守了相依性反向原則(Dependency Inversion Principle, DIP)的類別設計原則，本質上類別應相依於抽象概念，而非相依於具體細節上。」
+
+#### 補充
+- 抽象隔離
+    - 繼承 ( 多型 )
+    - 抽象介面
+    - 裝飾者模式
+    - 策略模式
+
+## 系統 `Chapter 11`
+「若在起始過程中的物件在被建造時就已經伴隨了相互串連的相依性，則系統應該依《執行邏輯》接管起始過程、將其劃分開來」
+### 將所有關注的事分離開來：
+```java=
+public Service getService(){
+    if(service == nul){
+        service = new MyServiceImpl(...);
+    }
+    return service;
+}
+```
+延遲初始/延遲賦值(lazy-initialization/Evaluation)
+- 好處
+    ```
+    1. 縮短起始時間
+    2. 確保其函式不回傳 null
+    ```
+- 壞處
+    ```
+    1. 相依性
+    2. 測試需要 Test double 或 Mock object ＆ 必須測試所有執行路徑
+    ```
+    違反SRP。
+
+### 主程式 Main 的劃分
+- 與建造相關之程式碼移入主函式或主函式呼叫之模組裡。
+    ![](https://i.imgur.com/8IFPyjB.png)
+> 直線之箭頭所指方向代表相依性的方向。
+
+#### 好處
+應用程式只專注在**使用**建造所需之物件。
+### 工廠
+有時應用程式也需要決定什麼時候生產物件。
+> 例：在訂單系統裡，應用程式需要產生行列項目(LineItem)實體。
+
+### 抽象工廠
+讓應用程式控制**何時**建立 ListItems，卻可使其細節與主程式碼隔離開來。
+![](https://i.imgur.com/5eCj5i6.png)
+
+### 相依性注入 `Dependency Injection` (相依性管理之應用)
+：將建立過程從使用中分離出來的機制。
+#### 控管反轉
+將某物件的第二職責移交給其他視其職責為主職責的物件裡。——符合SRP。
+> 因為「一個物件不應該負責實體化對本身的相依」。
+#### 相依性管理
+- 物件不該負責實體化對本身的相依
+- 應該將此責交給另一個授權機制(通常為主程序或容器)
+
+### 擴大
+系統如何由簡單轉變複雜？(系統層面的敏捷開發)
+> ### 如果能持續保持關注點分離，軟體系統的架構則可遞增成長。
+> - 逐步實踐
+> - 重構
+> - 擴充
+
+(程式碼層面的敏捷開發)
+> - TDD
+> - 重構
+> - clean code
+
+
+
+#### 關注點分離
+反例
+- 造成系統成長方面障礙
+- 進行獨立單元測試困難
+- 重複使用率低甚至不可用
+- 破壞OOP：不可繼承
+
+### 橫切關注點 (AOP)
+在不同物件中，實質散步永久性策略的實作程式碼。
+#### AOP(aspects-oriented programmimg)
+**aspects**: 系統中哪些點需要以一致性的方式修改，以支持某個特定的關注點。
+#### 例 in Java
+- Java proxis (for easy scenario)
+    - wrapping
+- JDK dynamic proxies (Limits: use with Intereface only)
+- proxy class (需使用位元組碼操作函式庫)
+
+### 關注點分離之結果
+- 程式碼層級上使架構的關注點分離，可真正使用測試驅動開發架構。
+- BDUF 的有害處：
+    - 心理因素的抗拒而禁止改進
+    - 影響後續設計思考
+
+## 羽化 `Chapter 12`
+何謂簡單的設計
+- 執行完所有測試
+- 無重複部分
+- 表達了設計師的原意
+- 最小化類別與方法的數量
+
+為了能夠被測試，自然會趨向設計小型、單一用途的類別(遵守SRP)。
+寫越多的測試，越會使用諸如 DIP、相依性注入、介面、抽象概念等工具(最小化耦合度)。
+測試：保持程式與類別的整潔。
+使用逐步增加來進行程式的重構。
+重構：增加凝聚性、降低耦合度、分離關注點、模組化系統關注點、替韓式與類別瘦身、取好的名稱等等。
+
+## 平行化設計 `Chapter 13`
+可以透過「程式堆疊向後追蹤」決定程式的狀態。
+可以設定一個或多個中斷點來進行除錯的動作。
+可以透過抵達某個中斷點得知系統狀態。
+可以改善 Web 反應時間(response time)與產能(throughput)的限制。
+
+好處
+- 改善產能與結構
+- 結構角度分析：應用程式變成是由許多協同合作的電腦組成，因此可以更好的分離關注點。例：「servlet」模型。當獲得一個 web request 時，servlet 會以非同步方式執行。
+
+但是需要以下犧牲
+- 有時候才能改善效能
+- 需要改變原本的設計(從單執行緒到多執行緒的設計)
+- 平行化更新、死結
+- 額外的負擔
+
+如果你有遵守以下原則則不會受到平行化設計太多困擾
+- SRP
+- 限制資料的視野(良好封裝)
+- 使用資料的複本
+- 讓資料像 HttpServlet 的子類別一樣執行起來
+
+## 持續地精練 `Chapter 14`
+案例討論。
+
+> 你必須先寫下糟糕的程式，然後去整理他
+
+## JUnit 的內部結構 `Chapter 15`
+
+## 程式碼的氣味與啟發 `Chapter 17`
+氣味不好的程式列表清單
